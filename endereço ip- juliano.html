@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENDEREÇO IP</title>
+<style>
+  :root {
+    --azul:   #1565C0;
+    --azul-l: #E3F2FD;
+    --verde:  #2E7D32;
+    --verde-l:#E8F5E9;
+    --roxo:   #6A1B9A;
+    --roxo-l: #F3E5F5;
+    --laranja:#E65100;
+    --laran-l:#FFF3E0;
+    --verm:   #B71C1C;
+    --verm-l: #FFEBEE;
+    --amarelo:#F9A825;
+    --amar-l: #FFFDE7;
+    --cinza:  #455A64;
+    --bg:     #FAFAFA;
+    --branco: #FFFFFF;
+    --borda:  #CFD8DC;
+    --r: 16px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: #1a1a1a;
+    font-size: 18px;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--azul);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-title {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
+  .topbar-steps {
+    display: flex;
+    gap: 8px;
+  }
+  .step-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    border: 2px solid rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .step-dot.ativo { background: #fff; }
+  .step-dot.feito { background: #A5D6A7; border-color: #A5D6A7; }
+
+  /* ── SECTIONS ── */
+  .sec { display: none; max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
+  .sec.ativo { display: block; }
+
+  /* ── TÍTULO DE SEÇÃO ── */
+  .sec-titulo {
+    font-size: 34px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .sec-sub {
+    font-size: 18px;
+    text-align: center;
+    color: var(--cinza);
+    margin-bottom: 32px;
+  }
+
+  /* ── CARD GRANDE ── */
+  .card {
+    background: var(--branco);
+    border: 2.5px solid var(--borda);
+    border-radius: var(--r);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  .card-titulo {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .icone-grande { font-size: 48px; display: block; text-align: center; margin-bottom: 10px; }
+  .icone-medio  { font-size: 36px; }
+  .icone-pequeno{ font-size: 26px; }
+
+  /* ── FRASE CURTA ── */
+  .frase {
+    font-size: 22px;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.5;
+    text-align: center;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .frase.azul    { background: var(--azul-l);   color: var(--azul);   border: 2px solid #90CAF9; }
+  .frase.verde   { background: var(--verde-l);  color: var(--verde);  border: 2px solid #A5D6A7; }
+  .frase.roxo    { background: var(--roxo-l);   color: var(--roxo);   border: 2px solid #CE93D8; }
+  .frase.laranja { background: var(--laran-l);  color: var(--laranja);border: 2px solid #FFCC80; }
+  .frase.verm    { background: var(--verm-l);   color: var(--verm);   border: 2px solid #EF9A9A; }
+  .frase.amarelo { background: var(--amar-l);   color: #5D4037;       border: 2px solid #FFE082; }
+
+  /* ── GRID DE ÍCONES ── */
+  .icone-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .icone-box {
+    background: var(--branco);
+    border: 2.5px solid var(--borda);
+    border-radius: var(--r);
+    padding: 20px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .15s, border-color .15s;
+    user-select: none;
+  }
+  .icone-box:hover { transform: scale(1.04); }
+  .icone-box .emoji { font-size: 52px; display: block; margin-bottom: 10px; }
+  .icone-box .label {
+    font-size: 15px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #333;
+    line-height: 1.3;
+  }
+  .icone-box.selecionado { border-color: var(--verde); background: var(--verde-l); }
+  .icone-box.selecionado .label { color: var(--verde); }
+  .icone-box.errado     { border-color: var(--verm);  background: var(--verm-l); }
+  .icone-box.errado .label { color: var(--verm); }
+
+  /* ── BOTÕES GRANDES ── */
+  .btn-grande {
+    display: block;
+    width: 100%;
+    padding: 20px;
+    font-size: 22px;
+    font-weight: 900;
+    text-transform: uppercase;
+    border: none;
+    border-radius: var(--r);
+    cursor: pointer;
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+    transition: transform .12s, opacity .12s;
+    font-family: inherit;
+  }
+  .btn-grande:active { transform: scale(0.97); }
+  .btn-avancar  { background: var(--azul);   color: #fff; }
+  .btn-verde    { background: var(--verde);  color: #fff; }
+  .btn-laranja  { background: var(--laranja);color: #fff; }
+  .btn-cinza    { background: #ECEFF1; color: var(--cinza); border: 2px solid var(--borda); }
+
+  /* ── BARRA DE PROGRESSO ── */
+  .progress-wrap { background: #E0E0E0; border-radius: 20px; height: 14px; margin: 24px 0 8px; overflow:hidden; }
+  .progress-fill { height: 100%; background: var(--verde); border-radius: 20px; transition: width .4s; }
+  .progress-label { text-align: center; font-size: 16px; font-weight: 800; color: var(--cinza); margin-bottom: 24px; }
+
+  /* ── FEEDBACK BOX ── */
+  .feedback {
+    display: none;
+    border-radius: var(--r);
+    padding: 20px 24px;
+    font-size: 22px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+  .feedback.certo { background: var(--verde-l); color: var(--verde); border: 2.5px solid #81C784; }
+  .feedback.errado{ background: var(--verm-l);  color: var(--verm);  border: 2.5px solid #EF9A9A; }
+
+  /* ── NOTA FINAL ── */
+  .nota-final-wrap {
+    text-align: center;
+    padding: 40px 20px 50px;
+  }
+  .nota-label {
+    font-size: 28px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--cinza);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .nota-numero {
+    font-size: 200px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -4px;
+    transition: color .3s;
+  }
+  .nota-de10 {
+    font-size: 36px;
+    color: var(--cinza);
+    font-weight: 800;
+    margin-top: -16px;
+    margin-bottom: 24px;
+  }
+  .estrelas { font-size: 52px; margin: 8px 0 20px; letter-spacing: 4px; }
+  .nota-msg {
+    font-size: 24px;
+    font-weight: 900;
+    text-transform: uppercase;
+    padding: 16px 24px;
+    border-radius: var(--r);
+    display: inline-block;
+    margin-bottom: 28px;
+  }
+
+  /* ── ANALOGIA VISUAL ── */
+  .analogia-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .analogia-item {
+    text-align: center;
+    padding: 16px 18px;
+    border-radius: var(--r);
+    border: 2.5px solid;
+    min-width: 110px;
+    flex: 1;
+    max-width: 150px;
+  }
+  .analogia-item .emoji { font-size: 44px; display: block; margin-bottom: 8px; }
+  .analogia-item .txt  { font-size: 14px; font-weight: 900; text-transform: uppercase; line-height: 1.3; }
+  .igual { font-size: 40px; font-weight: 900; color: var(--cinza); flex-shrink: 0; }
+
+  /* ── IP VISUAL ── */
+  .ip-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .ip-bloco {
+    background: var(--azul);
+    color: #fff;
+    font-size: 32px;
+    font-weight: 900;
+    border-radius: 12px;
+    padding: 14px 18px;
+    min-width: 72px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+  }
+  .ip-ponto {
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--cinza);
+  }
+
+  /* ── HTTP/S VISUAL ── */
+  .protocolo-par {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .proto-card {
+    border-radius: var(--r);
+    padding: 20px 16px;
+    text-align: center;
+    border: 3px solid;
+  }
+  .proto-card .proto-nome {
+    font-size: 30px;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 10px;
+  }
+  .proto-card .proto-emoji { font-size: 60px; display: block; margin: 10px 0; }
+  .proto-card .proto-frase {
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.45;
+  }
+  .proto-card.http  { background: var(--verm-l);  border-color: #EF9A9A; color: var(--verm); }
+  .proto-card.https { background: var(--verde-l); border-color: #81C784; color: var(--verde);}
+
+  /* ── QUIZ VISUAL ── */
+  .quiz-pergunta {
+    font-size: 24px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.45;
+    margin-bottom: 8px;
+    padding: 0 8px;
+  }
+  .quiz-contexto {
+    background: var(--amar-l);
+    border: 2.5px solid var(--amarelo);
+    border-radius: var(--r);
+    padding: 16px 20px;
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.5;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #4E342E;
+  }
+  .quiz-opts-visual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .qopt {
+    background: var(--branco);
+    border: 3px solid var(--borda);
+    border-radius: var(--r);
+    padding: 18px 12px;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .12s, border-color .12s;
+    user-select: none;
+  }
+  .qopt:hover { transform: scale(1.03); border-color: var(--azul); }
+  .qopt .qopt-emoji { font-size: 44px; display: block; margin-bottom: 8px; }
+  .qopt .qopt-texto {
+    font-size: 15px;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.35;
+    color: #1a1a1a;
+  }
+  .qopt.certo  { border-color: var(--verde);  background: var(--verde-l); }
+  .qopt.certo .qopt-texto { color: var(--verde); }
+  .qopt.errd   { border-color: var(--verm);   background: var(--verm-l); }
+  .qopt.errd .qopt-texto { color: var(--verm); }
+  .qopt:disabled { cursor: default; transform: none; }
+
+  /* ── DETALHE ACERTOS ── */
+  .detalhe-acertos {
+    background: #F5F5F5;
+    border: 2px solid var(--borda);
+    border-radius: var(--r);
+    padding: 18px 24px;
+    margin: 16px auto 24px;
+    max-width: 380px;
+    font-size: 20px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--cinza);
+    line-height: 1.7;
+  }
+
+  /* ── RODAPÉ ── */
+  footer {
+    background: #263238;
+    color: #B0BEC5;
+    text-align: center;
+    padding: 16px 1rem;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 0;
+  }
+  footer strong { color: #ECEFF1; }
+
+  @media (max-width: 520px) {
+    .protocolo-par { grid-template-columns: 1fr; }
+    .quiz-opts-visual { grid-template-columns: 1fr 1fr; }
+    .nota-numero { font-size: 130px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-title">🌐 A INTERNET</div>
+  <div class="topbar-steps" id="topSteps"></div>
+</div>
+
+<!-- ════════════════════════════════ SEC 0: BEM-VINDO -->
+<div class="sec ativo" id="sec0">
+  <div class="icone-grande">👋</div>
+  <div class="sec-titulo" style="color:var(--azul);">OLÁ!</div>
+  <div class="sec-sub">VAMOS APRENDER </div>
+
+  <div class="frase azul">🌐 COMO OS COMPUTADORES CONVERSAM? <p>📦 O QUE É UM ENDEREÇO IP?</p> <p>🔒 O QUE É HTTP E HTTPS?</p> </div>
+  
+  <div class="card" style="text-align:center;">
+       <button class="btn-grande btn-verde" onclick="irPara(1)">▶ &nbsp; COMEÇAR</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SEC 1: O QUE É IP -->
+<div class="sec" id="sec1">
+  <div class="sec-titulo" style="color:var(--azul);">O ENDEREÇO IP</div>
+
+  <div class="frase azul">TODO COMPUTADOR TEM UM ENDEREÇO</div>
+
+  <div class="card">
+       <div class="analogia-row">
+      <div class="analogia-item" style="border-color:#90CAF9;background:var(--azul-l);color:var(--azul);">
+        <span class="emoji">🏠</span>
+        <div class="txt">CASA TEM<br>ENDEREÇO</div>
+      </div>
+      <div class="igual">=</div>
+      <div class="analogia-item" style="border-color:#81C784;background:var(--verde-l);color:var(--verde);">
+        <span class="emoji">💻</span>
+        <div class="txt">COMPUTADOR<br>TEM IP</div>
+      </div>
+    </div>
+    <div class="frase verde">SEM ENDEREÇO → ENCOMENDA SE PERDE<br>SEM IP → DADOS SE PERDEM</div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo"><span class="icone-medio"></span> O IP É FORMADO POR 4 NÚMEROS</div>
+    <div class="ip-visual">
+      <div class="ip-bloco">192</div><div class="ip-ponto">.</div>
+      <div class="ip-bloco">168</div><div class="ip-ponto">.</div>
+      <div class="ip-bloco">1</div><div class="ip-ponto">.</div>
+      <div class="ip-bloco">15</div>
+    </div>
+    <div class="frase laranja">CADA NÚMERO VAI DE 0 ATÉ 255</div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo"><span class="icone-medio"></span> DOIS TIPOS DE IP</div>
+    <div class="icone-grid">
+      <div class="icone-box" style="border-color:#90CAF9;background:var(--azul-l);">
+        <span class="emoji">🏫</span>
+        <div class="label" style="color:var(--azul);">IP LOCAL<br>(SÓ NA ESCOLA)</div>
+      </div>
+      <div class="icone-box" style="border-color:#81C784;background:var(--verde-l);">
+        <span class="emoji">🌍</span>
+        <div class="label" style="color:var(--verde);">IP PÚBLICO<br>(NA INTERNET)</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-grande btn-avancar" onclick="irPara(2)">PRÓXIMO ➜</button>
+</div>
+
+<!-- ════════════════════════════════ SEC 2: PING -->
+<div class="sec" id="sec2">
+  <div class="sec-titulo" style="color:var(--verde);"> O PING</div>
+  <div class="frase verde">PING = TESTAR SE O COMPUTADOR RESPONDE</div>
+
+  <div class="card">
+       <div class="analogia-row">
+      <div class="analogia-item" style="border-color:#CE93D8;background:var(--roxo-l);color:var(--roxo);">
+        <span class="emoji">📣</span>
+        <div class="txt">EU ENVIO<br>UM SINAL</div>
+      </div>
+      <div class="igual">→</div>
+      <div class="analogia-item" style="border-color:#90CAF9;background:var(--azul-l);color:var(--azul);">
+        <span class="emoji">💻</span>
+        <div class="txt">O OUTRO<br>RESPONDE</div>
+      </div>
+    </div>
+    <div class="frase azul">SE RESPONDER = ✅ ESTÁ CONECTADO<br>SE NÃO RESPONDER = ❌ NÃO TEM CONEXÃO</div>
+  </div>
+
+  <div class="card">
+    <div class="card-titulo"><span class="icone-medio">⏱️</span> O PING MEDE O TEMPO DA INTERNET</div>
+    <div class="icone-grid">
+      <div class="icone-box" style="border-color:#81C784;background:var(--verde-l);">
+        <span class="emoji">🐇</span>
+        <div class="label" style="color:var(--verde);">1ms – 20ms<br>MUITO RÁPIDO O ACESSO</div>
+      </div>
+      <div class="icone-box" style="border-color:#FFE082;background:var(--amar-l);">
+        <span class="emoji">🐢</span>
+        <div class="label" style="color:#5D4037;">100ms+<br>LENTO O ACESSO</div>
+      </div>
+      <div class="icone-box" style="border-color:#EF9A9A;background:var(--verm-l);">
+        <span class="emoji">💥</span>
+        <div class="label" style="color:var(--verm);">SEM RESPOSTA<br>INFORMAÇÕES PERDIDAS</div>
+      </div>
+    </div>
+  </div>
+
+    <button class="btn-grande btn-avancar" onclick="irPara(3)">PRÓXIMO ➜</button>
+</div>
+
+<!-- ════════════════════════════════ SEC 3: HTTP / HTTPS -->
+<div class="sec" id="sec3">
+  <div class="sec-titulo" style="color:var(--roxo);">🔐 HTTP E HTTPS</div>
+  <div class="frase roxo">SÃO AS REGRAS DA WEB</div>
+
+  <div class="protocolo-par">
+    <div class="proto-card http">
+      <div class="proto-nome">HTTP</div>
+      <span class="proto-emoji">🔓</span>
+      <div class="proto-frase">SEM CADEADO<br>SEM SEGURANÇA<br>⚠️ CUIDADO!</div>
+    </div>
+    <div class="proto-card https">
+      <div class="proto-nome">HTTPS</div>
+      <span class="proto-emoji">🔒</span>
+      <div class="proto-frase">COM CADEADO<br>DADOS SEGUROS<br>✅ SEGURO!</div>
+    </div>
+  </div>
+
+    <div class="card">
+    <div class="card-titulo"><span class="icone-medio">🌐</span> VEJA NO NAVEGADOR</div>
+    <div style="background:#f5f5f3;border:2px solid var(--borda);border-radius:24px;padding:14px 20px;font-family:'Courier New',monospace;font-size:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0;">
+      <span style="background:var(--verde-l);color:var(--verde);font-weight:900;padding:4px 10px;border-radius:6px;font-size:16px;">🔒 https://</span>
+      <span style="color:var(--verde);font-weight:700;">www.escola.edu.br</span>
+    </div>
+    <div class="frase verde">SE TEM 🔒 = SEGURO!<br>SE NÃO TEM 🔒 = CUIDADO!</div>
+  </div>
+
+  <button class="btn-grande btn-avancar" onclick="irPara(4)">PRÓXIMO ➜</button>
+</div>
+
+<!-- ════════════════════════════════ SEC 4: REVISÃO -->
+<div class="sec" id="sec4">
+  <div class="sec-titulo" style="color:var(--laranja);">📝 VAMOS LEMBRAR!</div>
+
+  <div class="card">
+    <span class="icone-grande"></span>
+    <div class="frase azul">IP = ENDEREÇO DO COMPUTADOR</div>
+    <div class="ip-visual" style="justify-content:center;">
+      <div class="ip-bloco" style="font-size:22px;padding:10px 14px;">192</div>
+      <div class="ip-ponto" style="font-size:28px;">.</div>
+      <div class="ip-bloco" style="font-size:22px;padding:10px 14px;">168</div>
+      <div class="ip-ponto" style="font-size:28px;">.</div>
+      <div class="ip-bloco" style="font-size:22px;padding:10px 14px;">1</div>
+      <div class="ip-ponto" style="font-size:28px;">.</div>
+      <div class="ip-bloco" style="font-size:22px;padding:10px 14px;">15</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="icone-grande"></span>
+    <div class="frase verde">PING = TESTAR SE RESPONDE</div>
+    <div class="icone-grid" style="grid-template-columns:1fr 1fr;">
+      <div style="background:var(--verde-l);border:2px solid #81C784;border-radius:12px;padding:16px;text-align:center;">
+        <div style="font-size:40px;">✅</div>
+        <div style="font-size:16px;font-weight:900;text-transform:uppercase;color:var(--verde);">RESPONDEU<br>CONECTADO</div>
+      </div>
+      <div style="background:var(--verm-l);border:2px solid #EF9A9A;border-radius:12px;padding:16px;text-align:center;">
+        <div style="font-size:40px;">❌</div>
+        <div style="font-size:16px;font-weight:900;text-transform:uppercase;color:var(--verm);">NÃO RESPONDEU<br>DESLIGADO</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="icone-grande"></span>
+    <div class="frase roxo">HTTPS = SEGURO &nbsp;|&nbsp; HTTP = CUIDADO</div>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <div style="background:var(--verde-l);border:2.5px solid #81C784;border-radius:12px;padding:16px 24px;text-align:center;">
+        <div style="font-size:48px;">🔒</div>
+        <div style="font-size:18px;font-weight:900;color:var(--verde);">HTTPS</div>
+      </div>
+      <div style="background:var(--verm-l);border:2.5px solid #EF9A9A;border-radius:12px;padding:16px 24px;text-align:center;">
+        <div style="font-size:48px;">🔓</div>
+        <div style="font-size:18px;font-weight:900;color:var(--verm);">HTTP</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-grande btn-verde" onclick="irPara(5)">✏️ FAZER A ATIVIDADE</button>
+</div>
+
+<!-- ════════════════════════════════ SEC 5: QUIZ VISUAL -->
+<div class="sec" id="sec5">
+  <div class="sec-titulo" style="color:var(--laranja);">✏️ ATIVIDADE</div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="qProgress" style="width:0%"></div></div>
+  <div class="progress-label" id="qLabel">QUESTÃO 1 DE 8</div>
+
+  <div class="card" id="quizCard">
+    <div id="qContexto" class="quiz-contexto" style="display:none;"></div>
+    <div class="quiz-pergunta" id="qPergunta"></div>
+    <div class="quiz-opts-visual" id="qOpts"></div>
+    <div class="feedback" id="qFeedback"></div>
+    <button class="btn-grande btn-avancar" id="qNext" style="display:none;" onclick="proximaQ()">PRÓXIMA ➜</button>
+  </div>
+  <div id="resultadoFinal" style="display:none;"></div>
+</div>
+
+<footer>
+  ATIVIDADE EDUCATIVA &nbsp;|&nbsp; <strong>PROFª ADRIANA BETT TEREBINTO</strong>
+</footer>
+
+<script>
+const TOTAL_SECS = 6;
+let secAtual = 0;
+
+function irPara(n) {
+  document.getElementById('sec'+secAtual).classList.remove('ativo');
+  document.getElementById('sec'+n).classList.add('ativo');
+  secAtual = n;
+  atualizarDots();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===5) iniciarQuiz();
+}
+
+function atualizarDots() {
+  document.getElementById('topSteps').innerHTML =
+    Array.from({length:TOTAL_SECS},(_,i)=>`<div class="step-dot ${i<secAtual?'feito':i===secAtual?'ativo':''}" onclick="irPara(${i})"></div>`).join('');
+}
+atualizarDots();
+
+/* ── BANCO DE QUESTÕES VISUAIS (8 questões) ── */
+const BANCO = [
+  {
+    p:'O QUE É UM ENDEREÇO IP?',
+    opts:[
+      {e:'📍',t:'ENDEREÇO DO COMPUTADOR',c:true},
+      {e:'🔑',t:'A SENHA DO WI-FI',c:false},
+      {e:'🖨️',t:'O NOME DA IMPRESSORA',c:false},
+      {e:'📱',t:'O MODELO DO CELULAR',c:false},
+    ],
+    ok:'✅ SIM! IP É O ENDEREÇO DO COMPUTADOR!',
+    err:'❌ NÃO... IP É O ENDEREÇO DO COMPUTADOR NA REDE!'
+  },
+  {
+    p:'QUAL SITE É MAIS SEGURO?',
+    opts:[
+      {e:'🔓',t:'http://loja.com',c:false},
+      {e:'🔒',t:'https://loja.com',c:true},
+      {e:'💻',t:'OS DOIS SÃO IGUAIS',c:false},
+      {e:'❓',t:'TODOS SÃO BONS',c:false},
+    ],
+    ok:'✅ CERTO! 🔒 HTTPS É SEGURO!',
+    err:'❌ O SITE COM 🔒 HTTPS É O MAIS SEGURO!'
+  },
+  {
+    p:'O QUE SIGNIFICA O CADEADO 🔒 NO NAVEGADOR?',
+    opts:[
+      {e:'🚫',t:'O SITE ESTÁ FECHADO',c:false},
+      {e:'🔐',t:'A CONEXÃO É SEGURA',c:true},
+      {e:'⚡',t:'O SITE É RÁPIDO',c:false},
+      {e:'🔑',t:'PRECISA DE SENHA',c:false},
+    ],
+    ok:'✅ ISSO MESMO! 🔒 = CONEXÃO SEGURA!',
+    err:'❌ O CADEADO 🔒 SIGNIFICA QUE A CONEXÃO É SEGURA!'
+  },
+  {
+    p:'PARA QUE SERVE O COMANDO PING?',
+    opts:[
+      {e:'📥',t:'INSTALAR PROGRAMAS',c:false},
+      {e:'📡',t:'TESTAR A CONEXÃO',c:true},
+      {e:'🔑',t:'DESCOBRIR A SENHA',c:false},
+      {e:'🗑️',t:'APAGAR ARQUIVOS',c:false},
+    ],
+    ok:'✅ PERFEITO! PING TESTA A CONEXÃO!',
+    err:'❌ O PING SERVE PARA TESTAR SE UM COMPUTADOR ESTÁ RESPONDENDO!'
+  },
+  {
+    ctx:'LUCAS RECEBEU UMA MENSAGEM DIZENDO: "GANHE UM CELULAR GRÁTIS! CLIQUE AQUI NO LINK SEUPREMIO.COM".',
+    p:'O QUE LUCAS DEVE FAZER?',
+    opts:[
+      {e:'🚨',t:'NÃO CLICAR E FECHAR A PÁGINA',c:true},
+      {e:'🖱️',t:'CLICAR RÁPIDO NO LINK PARA GANHAR',c:false},
+      {e:'📱',t:'ENVIAR PARA TODOS OS AMIGOS',c:false},
+      {e:'⌨️',t:'DIGITAR O NOME COMPLETO',c:false},
+    ],
+    ok:'✅ ISSO MESMO! LINKS SUSPEITOS DE "BRINDES" SÃO PERIGOSOS!',
+    err:'❌ NÃO DEVEMOS CLICAR! ESSES LINKS PODEM TER VÍRUS!'
+  },
+  {
+    ctx:'PEDRO VAI CRIAR UMA SENHA PARA PROTEGER O SEU JOGO.',
+    p:'QUAL É A SENHA MAIS SEGURA CONTRA INVASORES?',
+    opts:[
+      {e:'🔢',t:'123456 (MUITO FÁCIL)',c:false},
+      {e:'🔠',t:'PEDRO (SÓ O NOME)',c:false},
+      {e:'🔒',t:'P@dr0#2026 (LETRAS, NÚMEROS E SÍMBOLOS)',c:true},
+      {e:'👎',t:'AAAAAA (REPETIDA)',c:false},
+    ],
+    ok:'✅ PERFEITO! SENHAS COM SÍMBOLOS E NÚMEROS SÃO MAIS SEGURAS!',
+    err:'❌ A SENHA COM NÚMEROS E SÍMBOLOS 🔒 É A MAIS PROTEGIDA!'
+  },
+  {
+    ctx:'JOÃO QUER COMPRAR UM TÊNIS ONLINE.\nELE VÊ DOIS SITES:\n🔓 http://loja1.com   🔒 https://loja2.com',
+    p:'ONDE JOÃO DEVE DIGITAR O CARTÃO?',
+    opts:[
+      {e:'🔓',t:'LOJA 1 – HTTP',c:false},
+      {e:'🔒',t:'LOJA 2 – HTTPS',c:true},
+      {e:'🤷',t:'TANTO FAZ',c:false},
+      {e:'💵',t:'PAGAR SEM CARTÃO',c:false},
+    ],
+    ok:'✅ ISSO! SEMPRE USE 🔒 HTTPS PARA COMPRAS!',
+    err:'❌ JOÃO DEVE USAR A LOJA 2 COM 🔒 HTTPS – OS DADOS FICAM PROTEGIDOS!'
+  },
+  {
+    p:'QUAL DESTES PARECE UM ENDEREÇO IP DE VERDADE?',
+    opts:[
+      {e:'🔢',t:'192.168.1.10',c:true},
+      {e:'📧',t:'aluno@escola.com',c:false},
+      {e:'🔤',t:'ABC-XYZ-123',c:false},
+      {e:'📞',t:'(11) 9999-9999',c:false},
+    ],
+    ok:'✅ ISSO! O IP É FORMADO POR NÚMEROS SEPARADOS POR PONTOS!',
+    err:'❌ O IP USA ESSE FORMATO DE NÚMEROS: 192.168.1.10'
+  },
+];
+
+// Cada questão vale 1,25 ponto → 8 questões × 1,25 = 10 pontos
+const TOTAL_Q = 8;
+const VALOR_Q = 10 / TOTAL_Q; // 1.25
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+let questoes=[], qi=0, acertos=0;
+
+function iniciarQuiz(){
+  questoes = shuffle(BANCO).slice(0, TOTAL_Q);
+  qi=0; acertos=0;
+  document.getElementById('resultadoFinal').style.display='none';
+  document.getElementById('quizCard').style.display='';
+  mostrarQ();
+}
+
+function mostrarQ(){
+  const q = questoes[qi];
+  const pct = Math.round(qi / TOTAL_Q * 100);
+  document.getElementById('qProgress').style.width = pct+'%';
+  document.getElementById('qLabel').textContent = `QUESTÃO ${qi+1} DE ${TOTAL_Q}`;
+
+  const ctx = document.getElementById('qContexto');
+  if(q.ctx){ ctx.style.display=''; ctx.innerHTML='📖 LEIA COM ATENÇÃO:<br><br>'+q.ctx.replace(/\n/g,'<br>'); }
+  else { ctx.style.display='none'; }
+
+  document.getElementById('qPergunta').textContent = q.p;
+
+  const shuffOpts = shuffle(q.opts.map((o)=>({...o})));
+  document.getElementById('qOpts').innerHTML = shuffOpts.map((o)=>`
+    <button class="qopt" onclick="responder(this,${o.c})" data-correct="${o.c}">
+      <span class="qopt-emoji">${o.e}</span>
+      <span class="qopt-texto">${o.t}</span>
+    </button>`).join('');
+
+  document.getElementById('qFeedback').style.display='none';
+  document.getElementById('qNext').style.display='none';
+}
+
+function responder(btn, correct){
+  const btns = document.querySelectorAll('.qopt');
+  btns.forEach(b=>{ b.disabled=true; if(b.dataset.correct==='true') b.classList.add('certo'); });
+  if(!correct) btn.classList.add('errd');
+  if(correct) acertos++;
+  const fb = document.getElementById('qFeedback');
+  fb.className = 'feedback '+(correct?'certo':'errado');
+  fb.textContent = correct ? questoes[qi].ok : questoes[qi].err;
+  fb.style.display='block';
+  document.getElementById('qNext').style.display='block';
+}
+
+function proximaQ(){
+  qi++;
+  if(qi >= TOTAL_Q){ mostrarResultado(); return; }
+  mostrarQ();
+}
+
+function mostrarResultado(){
+  document.getElementById('quizCard').style.display='none';
+  document.getElementById('qProgress').style.width='100%';
+  document.getElementById('qLabel').textContent='ATIVIDADE CONCLUÍDA!';
+
+  // Nota convertida para escala 0–10, com 1 casa decimal
+  const notaBruta = acertos * VALOR_Q;
+  // Arredonda para ,0 ou ,5 (mais comum em notas escolares)
+  const nota = Math.round(notaBruta * 2) / 2;
+  // Exibe sem decimal desnecessário: 10.0 → "10", 7.5 → "7,5"
+  const notaDisplay = nota % 1 === 0 ? String(nota) : String(nota).replace('.', ',');
+
+  const cor   = nota>=7?'#2E7D32': nota>=5?'#E65100':'#B71C1C';
+  const bgCor = nota>=7?'#E8F5E9': nota>=5?'#FFF3E0':'#FFEBEE';
+  const estrelas = nota>=9?'⭐⭐⭐': nota>=7?'⭐⭐':'⭐';
+
+  const msg = nota===10 ?'🏆 PARABÉNS! NOTA MÁXIMA!':
+              nota>=9   ?'🎉 EXCELENTE!':
+              nota>=7   ?'😊 MUITO BEM!':
+              nota>=5   ?'💪 BOM TRABALHO!':
+                         '📚 CONTINUE TENTANDO!';
+
+  document.getElementById('resultadoFinal').innerHTML = `
+    <div class="nota-final-wrap">
+      <div class="nota-label">SUA NOTA</div>
+      <div class="nota-numero" style="color:${cor};">${notaDisplay}</div>
+      <div class="nota-de10">/ 10 PONTOS</div>
+      <div class="estrelas">${estrelas}</div>
+      <div class="nota-msg" style="background:${bgCor};color:${cor};">${msg}</div>
+      <div class="detalhe-acertos">
+        ✅ ACERTOS: ${acertos} DE ${TOTAL_Q}<br>
+        📊 CADA QUESTÃO: 1,25 PONTO
+      </div>
+      <button class="btn-grande btn-cinza" style="max-width:340px;margin:0 auto;" onclick="iniciarQuiz()">🔄 TENTAR DE NOVO</button>
+      <button class="btn-grande btn-avancar" style="max-width:340px;margin:12px auto 0;" onclick="irPara(0)">🏠 INÍCIO</button>
+    </div>`;
+  document.getElementById('resultadoFinal').style.display='block';
+  document.getElementById('resultadoFinal').scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>
